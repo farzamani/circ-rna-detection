@@ -1,0 +1,2 @@
+command,user_time,system_time,elapsed_time,cpu_percent,max_resident_set_size
+"""mps_regular_circRNA -G ref/chrom_index -1 results/A_2m/MapSplice/A_2m_1.fa -2 results/A_2m/MapSplice/A_2m_2.fa -T 16 -O results/A_2m/MapSplice/mps3_results""",1351.07,630.92,21:36.24,152,4643336

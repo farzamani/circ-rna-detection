@@ -4,12 +4,6 @@ TOOLS = [
     "find_circ", "MapSplice", "segemehl"
 ]   
 
-TOOLS_SUBSET = [
-    "CircDBG", "CircMarker", "CirComPara2",
-    "circRNA_finder", "circRNAFinder", 
-    "MapSplice", "segemehl"
-]
-
 rule parse_time:
     input:
         time = expand("results/{{sample}}/{tools}/time.txt", tools=TOOLS)

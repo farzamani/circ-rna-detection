@@ -112,4 +112,4 @@ rule compile_time_circexplorer2:
     output:
         time = "results/{sample}/CIRCexplorer2/time.txt"
     script:
-        os.path.join(workflow.basedir, "scripts/time_parser/timecompiler.py")
+        os.path.join(workflow.basedir, "scripts/time_parser/time_compiler.py")

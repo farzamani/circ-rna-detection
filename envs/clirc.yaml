@@ -1,0 +1,5 @@
+name: clirc-env
+channels:
+  - bioconda
+  - conda-forge
+  - defaults

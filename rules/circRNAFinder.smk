@@ -32,12 +32,14 @@ rule detect_circRNAFinder:
         config_find = "results/{sample}/circRNAFinder/circRNAFind.cfg"
     output:
         outdir = "results/{sample}/circRNAFinder/{sample}/output/{sample}.circ.txt",
+        temfile = temp(directory("results/{sample}/circRNAFinder/{sample}/temp")),
         time = "results/{sample}/circRNAFinder/time.txt"
     conda:
         os.path.join(workflow.basedir, "envs/circRNAFinder.yaml")
     params:
         outdir = "results/{sample}/circRNAFinder",
-        time = "results/{sample}/circRNAFinder/time.txt"
+        time = "results/{sample}/circRNAFinder/time.txt",
+        sample_name = "{sample}"
     resources:
         mem_mb = 12000,
         time = 720
@@ -45,6 +47,8 @@ rule detect_circRNAFinder:
         """
         export PATH=$PATH:scripts/circRNAFinder
         /usr/bin/time -v -o {params.time} circRNAFind.py {input.config_find} -s 0
-        rsync -a A_250k {params.outdir}
-        rm -rf A_250k
+        rsync -a {params.sample_name} {params.outdir}
+        rm -rf {params.sample_name}
         """
+
+        

@@ -7,17 +7,17 @@ SAMPLES_TEST = ["A_500k"]
 
 rule all:
     input:
+        #expand("results/{sample}/CircDBG/time.txt", sample=SAMPLES),
+        #expand("results/{sample}/CIRCexplorer2/time.txt", sample=SAMPLES),
+        #expand("results/{sample}/CircMarker/time.txt", sample=SAMPLES),
         #expand("results/{sample}/CirComPara2/time.txt", sample=SAMPLES_TEST),
         #expand("results/{sample}/circRNA_finder/time.txt", sample=SAMPLES),
-        #expand("results/{sample}/MapSplice/mps3_results/", sample=SAMPLES),
-        #expand("results/{sample}/circRNAFinder/{sample}/output/{sample}.circ.txt", sample=SAMPLES),
-        #expand("results/{sample}/CIRI2/{sample}.out", sample=SAMPLES),
-        #expand("results/{sample}/CircMarker/Detection_Result/Brief_sum.txt", sample=SAMPLES),
-        #expand("results/{sample}/segemehl/{sample}.sam", sample=SAMPLES),
-        #expand("results/{sample}/CircDBG/Detection_Result/Brief_sum.txt", sample=SAMPLES),
+        #expand("results/{sample}/circRNAFinder/time.txt", sample=SAMPLES),
+        #expand("results/{sample}/CIRI2/time.txt", sample=SAMPLES),
         #expand("results/{sample}/DCC/time.txt", sample=SAMPLES),
         #expand("results/{sample}/find_circ/time.txt", sample=SAMPLES),
-        #expand("results/{sample}/CIRCexplorer2/time.txt", sample=SAMPLES),
+        #expand("results/{sample}/MapSplice/time.txt", sample=SAMPLES),
+        #expand("results/{sample}/segemehl/time.txt", sample=SAMPLES),
         expand("results/{sample}/time.csv", sample=SAMPLES)
         
 

@@ -1,0 +1,23 @@
+	Command being timed: "mps_regular_circRNA -G ref/chrom_index -1 results/A_2m/MapSplice/A_2m_1.fa -2 results/A_2m/MapSplice/A_2m_2.fa -T 16 -O results/A_2m/MapSplice/mps3_results"
+	User time (seconds): 1351.07
+	System time (seconds): 630.92
+	Percent of CPU this job got: 152%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 21:36.24
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4643336
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 8102
+	Minor (reclaiming a frame) page faults: 11172199
+	Voluntary context switches: 401816
+	Involuntary context switches: 434783
+	Swaps: 0
+	File system inputs: 13542776
+	File system outputs: 4437336
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

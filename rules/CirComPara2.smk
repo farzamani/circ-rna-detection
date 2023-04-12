@@ -29,7 +29,7 @@ rule detect_circompara2:
         #stats = "results/{sample}/CirComPara2/read_statistics/read_stats_collect/read_stats_collect.txt",
         time = "results/{sample}/CirComPara2/time.txt"
     container:
-        "scripts/CirComPara2/circompara2_new.sif"
+        "container/circompara2_new.sif"
     params:
         outdir = "results/{sample}/CirComPara2",
         time = "time.txt"
