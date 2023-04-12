@@ -1,4 +1,4 @@
-rule circexplorer2:
+rule knife:
     input:
     output:
     shell:

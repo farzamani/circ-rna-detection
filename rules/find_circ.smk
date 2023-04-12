@@ -1,81 +1,99 @@
-def find_circ_v3_input(wildcards):
-    output_dict = {}
-
-    if config['filter']['UMI']:
-        output_dict['pair1'] = rules.umi_collapse.output.pair1
-        output_dict['pair2'] = rules.umi_collapse.output.pair2
-    else:
-        output_dict['pair1'] = rules.trim_adapter.params.pair1
-        output_dict['pair2'] = rules.trim_adapter.params.pair2
-
-    output_dict['BowtieIndexfile'] = config["find_circ_v3"]["BowtieIndexfile"]
-
-    return output_dict
-
-rule find_circ_v3:
+rule make_bam_find_circ:
     input:
-        unpack(find_circ_v3_input)
+        reads1 = rules.trim.output.trimmed1,
+        reads2 = rules.trim.output.trimmed2
     output:
-        bamfile=temp("results/find_circ_output/{sample}.bam"),
-        unmapped_bam=temp("results/find_circ_output/{sample}_unmapped.bam"),
-        anchors=temp("results/find_circ_output/{sample}.anchors.qfa.gz"),
-        sites_bed="results/find_circ_output/{sample}/{sample}.sample.sites.bed",
-        sites_reads="results/find_circ_output/{sample}/{sample}.sites.reads",
-        circ_candidates="results/find_circ_output/{sample}/{sample}.circ_candidates.bed",
-        circ_candidates_35x2="results/find_circ_output/{sample}/{sample}.circ_candidates_map35x2.bed"
+        bam = temp("results/{sample}/find_circ/{sample}.bam"),
+        bowtie_log = "results/{sample}/find_circ/{sample}_bowtie.log",
+        time = "results/{sample}/find_circ/time1.txt"
     params:
-        BowtieIndex=config["find_circ"]["BowtieIndex"],
-        genomedir=config["find_circ"]["genomedir"]
-    log:
-        bt2_firstpass="logs/{sample}.bt2_firstpass.log",
-        sites="logs/find_circ_output/{sample}/{sample}.sites.log"
+        bowtie2 = "ref/bowtie2/hg19",
+        time = "results/{sample}/find_circ/time1.txt"
     conda:
-        os.path.join(workflow.basedir, "envs/find_circ.yml")
+        os.path.join(workflow.basedir, "envs/find_circ.yaml")
     resources:
-        mem_mb=12000,
-        time=720
-    threads:
-        14
+        mem_mb = 12000,
+        time = 720
     shell:
-        """
-        echo "Running bowtie2 to find unmapped reads"
-        ## Bowtie2 - find unmapped reads
-        bowtie2 -p {threads} --very-sensitive --mm -M20 --score-min=C,-15,0 \
-          -x {params.BowtieIndex} -q -1 {input.pair1} -2 {input.pair2} \
-          2> {log.bt2_firstpass} | samtools view -hbuS - | samtools sort - > {output.bamfile}
+        "/usr/bin/time -v -o {params.time} bash -c 'bowtie2 -p 16 --very-sensitive --score-min=C,-15,0 --mm -x {params.bowtie2} -q -1 {input.reads1} -2 {input.reads1} 2> {output.bowtie_log} | samtools view -hbuS - | samtools sort - > {output.bam}'"
 
-        ## Extract unmapped reads with samtools
-        echo "Extract unmapped reads"
-        samtools view -hf 4 {output.bamfile} | samtools view -Sb - > {output.unmapped_bam}        
-
-        echo "Producing anchors"
-        python scripts/find_circ/unmapped2anchors.py {output.unmapped_bam} | gzip > {output.anchors}
-
-        echo "Final bowtie"
-        ### Bowtie2
-        bowtie2 -p {threads} --reorder --mm -M20 --score-min=C,-15,0 -q -x {params.BowtieIndex} -U {output.anchors} |
-          python scripts/find_circ/find_circ_v2.py -G {params.genomedir} -p {wildcards.sample} -s {log.sites} \
-          > {output.sites_bed} 2> {output.sites_reads}
-
-        echo "Applying thresholds"
-        grep circ_ {output.sites_bed} | grep -v chrM |
-            python scripts/find_circ/sum.py -2,3 |
-            python scripts/find_circ/scorethresh.py -20 1 |
-            python scripts/find_circ/scorethresh.py -19 2 |
-            python scripts/find_circ/scorethresh.py -18 2 |
-            python scripts/find_circ/scorethresh.py 7 2 |
-            python scripts/find_circ/scorethresh.py 9,10 35 |
-            python scripts/find_circ/scorethresh.py -21 10000 > {output.circ_candidates}
+rule unmapped_find_circ:
+    input:
+        bam = "results/{sample}/find_circ/{sample}.bam"
+    output:
+        unmapped = temp("results/{sample}/find_circ/{sample}_unmapped.bam"),
+        time = "results/{sample}/find_circ/time2.txt"
+    conda:
+        os.path.join(workflow.basedir, "envs/find_circ.yaml")
+    params:
+        time = "results/{sample}/find_circ/time2.txt"
+    resources:
+        mem_mb = 12000,
+        time = 720
+    shell:
+        "/usr/bin/time -v -o {params.time} bash -c 'samtools view -hf 4 {input.bam} | samtools view -Sb - > {output.unmapped}'"
         
-        echo "Applything thresholds with 35x2"
-        grep circ_ {output.sites_bed} | grep -v chrM |
-            python scripts/find_circ/sum.py -2,3 |
-            python scripts/find_circ/scorethresh.py -20 1 |
-            python scripts/find_circ/scorethresh.py -19 2 |
-            python scripts/find_circ/scorethresh.py -18 2 |
-            python scripts/find_circ/scorethresh.py 7 2 |
-            python scripts/find_circ/scorethresh.py 9 35 |
-            python scripts/find_circ/scorethresh.py 10 35 |
-            python scripts/find_circ/scorethresh.py -21 10000 > {output.circ_candidates_35x2}
+rule unmapped2anchors_find_circ:
+    input:
+        unmapped = "results/{sample}/find_circ/{sample}_unmapped.bam" 
+    output:
+        fq = temp("results/{sample}/find_circ/{sample}.fastq.gz"),
+        time = "results/{sample}/find_circ/time3.txt"
+    conda:
+        os.path.join(workflow.basedir, "envs/find_circ.yaml")
+    params:
+        time = "results/{sample}/find_circ/time3.txt"
+    resources:
+        mem_mb = 12000,
+        time = 720
+    shell:
+        "/usr/bin/time -v -o {params.time} bash -c 'python2 scripts/find_circ/unmapped2anchors.py {input.unmapped} | gzip > {output.fq}'"
 
-        """
+rule detect_find_circ:
+    input:
+        fq = "results/{sample}/find_circ/{sample}.fastq.gz",
+    output:
+        stats = "results/{sample}/find_circ/stats.log",
+        fa = "results/{sample}/find_circ/spliced_reads.fa",
+        bed = "results/{sample}/find_circ/spliced_sites.bed",
+        time = "results/{sample}/find_circ/time4.txt"
+    params:
+        bowtie2 = "ref/bowtie2/hg19",
+        ref = "ref/reference/hg19.fa",
+        time = "results/{sample}/find_circ/time4.txt"
+    conda:
+        os.path.join(workflow.basedir, "envs/find_circ.yaml")
+    resources:
+        mem_mb = 12000,
+        time = 720
+    shell:
+        "/usr/bin/time -v -o {params.time} bash -c 'bowtie2 -p 16 --score-min=C,-15,0 --reorder --mm -q -U {input.fq} -x {params.bowtie2} | python2 scripts/find_circ/find_circ.py --genome={params.ref} --stats={output.stats} --reads={output.fa} > {output.bed}'"
+
+# original shell: grep CIRCULAR {input.bed} | grep -v chrM | awk '$5>=2' | grep UNAMBIGUOUS_BP | grep ANCHOR_UNIQUE | python2 scripts/find_circ/maxlength.py 100000 > {output.circ}
+rule filter_find_circ:
+    input:
+        bed = "results/{sample}/find_circ/spliced_sites.bed"
+    output:
+        circ = "results/{sample}/find_circ/circ_candidates.bed",
+        time = "results/{sample}/find_circ/time5.txt"
+    conda:
+        os.path.join(workflow.basedir, "envs/find_circ.yaml")
+    params:
+        time = "results/{sample}/find_circ/time5.txt"
+    resources:
+        mem_mb = 12000,
+        time = 720
+    shell:
+        "/usr/bin/time -v -o {params.time} bash -c 'grep CIRCULAR {input.bed} | grep -v chrM | awk -f scripts/find_circ/filter.awk | grep UNAMBIGUOUS_BP | grep ANCHOR_UNIQUE | python2 scripts/find_circ/maxlength.py 100000 > {output.circ}'"
+
+rule compile_time_find_circ:
+    input:
+        time1 = "results/{sample}/find_circ/time1.txt",
+        time2 = "results/{sample}/find_circ/time2.txt",
+        time3 = "results/{sample}/find_circ/time3.txt",
+        time4 = "results/{sample}/find_circ/time4.txt",
+        time5 = "results/{sample}/find_circ/time5.txt"
+    output:
+        time = "results/{sample}/find_circ/time.txt"
+    script:
+        os.path.join(workflow.basedir, "scripts/time_parser/time_compiler.py")
