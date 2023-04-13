@@ -2,7 +2,7 @@ import os
 
 # configfile: "config.yaml"
 SAMPLES = ["A_250k", "A_500k", "A_1m", "A_2m"]
-SAMPLES_TEST = ["A_500k"]
+SAMPLES_TEST = ["A_250k"]
 
 
 rule all:
@@ -18,6 +18,7 @@ rule all:
         #expand("results/{sample}/find_circ/time.txt", sample=SAMPLES),
         #expand("results/{sample}/MapSplice/time.txt", sample=SAMPLES),
         #expand("results/{sample}/segemehl/time.txt", sample=SAMPLES),
+        #expand("results/{sample}/CircSplice/time.txt", sample=SAMPLES_TEST)
         expand("results/{sample}/time.csv", sample=SAMPLES)
         
 
@@ -39,15 +40,16 @@ rule trim:
         "trim_galore --paired {input.reads1} {input.reads2} -o trimmed"
 
 
-include: "rules/CIRI2.smk"
-include: "rules/CircMarker.smk"
 include: "rules/CircDBG.smk"
-include: "rules/segemehl.smk"
-include: "rules/DCC.smk"
 include: "rules/CIRCexplorer2.smk"
+include: "rules/CircMarker.smk"
+include: "rules/CirComPara2.smk"
+include: "rules/circRNA_finder.smk"
+include: "rules/circRNAFinder.smk"
+include: "rules/CircSplice.smk"
+include: "rules/CIRI2.smk"
+include: "rules/DCC.smk"
 include: "rules/find_circ.smk"
 include: "rules/MapSplice.smk"
-include: "rules/circRNAFinder.smk"
-include: "rules/circRNA_finder.smk"
-include: "rules/CirComPara2.smk"
+include: "rules/segemehl.smk"
 include: "rules/parse_time.smk"

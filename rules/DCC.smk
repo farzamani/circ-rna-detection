@@ -2,7 +2,7 @@ rule mapping_mate1_circtools:
     input:
         reads1 = rules.trim.output.trimmed1
     output:
-        mate1 = directory("results/{sample}/DCC/mate1//"),
+        mate1 = temp(directory("results/{sample}/DCC/mate1//")),
         junction1 = "results/{sample}/DCC/mate1/Chimeric.out.junction",
         time = "results/{sample}/DCC/time1.txt"
     params:
@@ -52,7 +52,7 @@ rule mapping_mate2_circtools:
     input:
         reads2 = rules.trim.output.trimmed2
     output:
-        mate2 = directory("results/{sample}/DCC/mate2//"),
+        mate2 = temp(directory("results/{sample}/DCC/mate2//")),
         junction2 = "results/{sample}/DCC/mate2/Chimeric.out.junction",
         time = "results/{sample}/DCC/time2.txt"
     params:
@@ -104,7 +104,7 @@ rule mapping_both_circtools:
         reads2 = rules.trim.output.trimmed2
     output:
         junction = "results/{sample}/DCC/samplesheet/Chimeric.out.junction",
-        samplesheet = directory("results/{sample}/DCC/samplesheet//"),
+        samplesheet = temp(directory("results/{sample}/DCC/samplesheet//")),
         time = "results/{sample}/DCC/time3.txt"
     params:
         star = "ref/dcc",

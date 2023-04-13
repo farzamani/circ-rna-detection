@@ -1,7 +1,7 @@
 TOOLS = [
     "CircDBG", "CIRCexplorer2", "CircMarker", "CirComPara2",
-    "circRNA_finder", "circRNAFinder", "CIRI2", "DCC", 
-    "find_circ", "MapSplice", "segemehl"
+    "circRNA_finder", "circRNAFinder", "CircSplice", "CIRI2", 
+    "DCC", "find_circ", "MapSplice", "segemehl"
 ]   
 
 rule parse_time:
