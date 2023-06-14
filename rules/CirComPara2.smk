@@ -3,8 +3,10 @@ rule generate_meta_vars_circompara2:
         reads1 = rules.trim.output.trimmed1,
         reads2 = rules.trim.output.trimmed2
     output:
-        meta_csv = "results/{sample}/CirComPara2/meta.csv",
-        vars_py = "results/{sample}/CirComPara2/vars.py"
+        meta_csv = "results/{sample}.{replicate}/CirComPara2/meta.csv",
+        vars_py = "results/{sample}.{replicate}/CirComPara2/vars.py"
+    threads:
+        16
     params:
         sample_name = "{sample}",
         meta = "meta.csv",
@@ -23,19 +25,19 @@ rule generate_meta_vars_circompara2:
 
 rule detect_circompara2:
     input:
-        meta_csv = "results/{sample}/CirComPara2/meta.csv",
-        vars_py = "results/{sample}/CirComPara2/vars.py"
+        meta_csv = "results/{sample}.{replicate}/CirComPara2/meta.csv",
+        vars_py = "results/{sample}.{replicate}/CirComPara2/vars.py"
     output:
         #stats = "results/{sample}/CirComPara2/read_statistics/read_stats_collect/read_stats_collect.txt",
-        time = "results/{sample}/CirComPara2/time.txt"
+        time = "results/{sample}.{replicate}/CirComPara2/time.txt"
     container:
         "container/circompara2_new.sif"
     params:
-        outdir = "results/{sample}/CirComPara2",
+        outdir = "results/{sample}.{replicate}/CirComPara2",
         time = "time.txt"
     resources:
-        mem_mb = 64000,
-        time = 720
+        mem_mb = 72000,
+        runtime = 1440
     shell:
         """
         cd {params.outdir}

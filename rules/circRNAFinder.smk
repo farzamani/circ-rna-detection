@@ -3,21 +3,21 @@ rule convert_reads_circRNAFinder:
         reads1 = rules.trim.output.trimmed1,
         reads2 = rules.trim.output.trimmed2
     output:
-        reads = "results/{sample}/circRNAFinder/reads_{sample}.fa"
+        reads = "results/{sample}.{replicate}/circRNAFinder/reads_{sample}.fa"
     conda:
         os.path.join(workflow.basedir, "envs/circRNAFinder.yaml")
     resources:
-        mem_mb = 12000,
-        time = 720
+        mem_mb = 84000,
+        runtime = 720
     shell:
         "scripts/circRNAFinder/fastx_collapser.py -f {input.reads1},{input.reads2} {output.reads}"
 
 rule config_circRNAFinder:
     input:
-        reads = "results/{sample}/circRNAFinder/reads_{sample}.fa"
+        reads = "results/{sample}.{replicate}/circRNAFinder/reads_{sample}.fa"
     output:
-        config_find = "results/{sample}/circRNAFinder/circRNAFind.cfg",
-        config_anno = "results/{sample}/circRNAFinder/circRNAAnno.cfg"
+        config_find = "results/{sample}.{replicate}/circRNAFinder/circRNAFind.cfg",
+        config_anno = "results/{sample}.{replicate}/circRNAFinder/circRNAAnno.cfg"
     params:
         sample_name = "{sample}",
         gtf_build = "ref/annotation/hg19.gtf.build",
@@ -29,20 +29,22 @@ rule config_circRNAFinder:
 
 rule detect_circRNAFinder:
     input:
-        config_find = "results/{sample}/circRNAFinder/circRNAFind.cfg"
+        config_find = "results/{sample}.{replicate}/circRNAFinder/circRNAFind.cfg"
     output:
-        outdir = "results/{sample}/circRNAFinder/{sample}/output/{sample}.circ.txt",
-        temfile = temp(directory("results/{sample}/circRNAFinder/{sample}/temp")),
-        time = "results/{sample}/circRNAFinder/time.txt"
+        outdir = "results/{sample}.{replicate}/circRNAFinder/{sample}/output/{sample}.circ.txt",
+        temfile = temp(directory("results/{sample}.{replicate}/circRNAFinder/{sample}/temp")),
+        time = "results/{sample}.{replicate}/circRNAFinder/time.txt"
     conda:
         os.path.join(workflow.basedir, "envs/circRNAFinder.yaml")
     params:
-        outdir = "results/{sample}/circRNAFinder",
-        time = "results/{sample}/circRNAFinder/time.txt",
+        outdir = "results/{sample}.{replicate}/circRNAFinder",
+        time = "results/{sample}.{replicate}/circRNAFinder/time.txt",
         sample_name = "{sample}"
     resources:
-        mem_mb = 12000,
-        time = 720
+        mem_mb = 84000,
+        runtime = 720
+    threads:
+        16
     shell:
         """
         export PATH=$PATH:scripts/circRNAFinder

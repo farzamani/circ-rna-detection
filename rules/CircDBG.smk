@@ -3,7 +3,7 @@ rule config_script_circdbg:
         reads1 = rules.trim.output.trimmed1,
         reads2 = rules.trim.output.trimmed2
     output:
-        config = "results/{sample}/CircDBG/config.ini"
+        config = "results/{sample}.{replicate}/CircDBG/config.ini"
     params:
         gtf = "ref/annotation/hg19.gtf",
         fa = "ref/reference/hg19.fa"
@@ -12,16 +12,18 @@ rule config_script_circdbg:
 
 rule detect_circdbg:
     input:
-        config = "results/{sample}/CircDBG/config.ini"
+        config = "results/{sample}.{replicate}/CircDBG/config.ini"
     output:
-        result = "results/{sample}/CircDBG/Detection_Result/Brief_sum.txt",
-        time = "results/{sample}/CircDBG/time.txt"
+        result = "results/{sample}.{replicate}/CircDBG/Detection_Result/Brief_sum.txt",
+        time = "results/{sample}.{replicate}/CircDBG/time.txt"
     params:
-        outdir = "results/{sample}/CircDBG",
+        outdir = "results/{sample}.{replicate}/CircDBG",
         time = "time.txt"
+    threads:
+        16
     resources:
-        mem_mb = 12000,
-        time = 720
+        mem_mb = 84000,
+        runtime = 720
     shell:
         """
         cd {params.outdir}

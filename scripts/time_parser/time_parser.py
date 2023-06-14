@@ -31,7 +31,6 @@ def parse_file(file_path):
     return result
 
 
-
 def append_to_csv(csv_file, data):
     header =    [  
                     'command', 
