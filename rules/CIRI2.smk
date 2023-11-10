@@ -17,7 +17,7 @@ rule mapping_CIRI2:
         mem_mb = 48000,
         runtime = 720
     shell:
-        "/usr/bin/time -v -o {params.time} bwa mem -T {threads} {params.bwa} {input.reads1} {input.reads2} 1> {output.sam} 2> {output.log}"
+        "/usr/bin/time -v -o {params.time} bwa mem -t {threads} -T 19 {params.bwa} {input.reads1} {input.reads2} 1> {output.sam} 2> {output.log}"
 
 rule detect_CIRI2:
     input:
